@@ -3,7 +3,8 @@ name: Deploy to GCP
 on:
   push:
     branches:
-      - main  # Déclencher le workflow sur les pushs vers la branche `main`
+      # - main  # Déclencher le workflow sur les pushs vers la branche `main`
+      - master
 
 jobs:
   deploy:
