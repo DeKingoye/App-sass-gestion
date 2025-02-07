@@ -74,7 +74,8 @@ export default function Home() {
                 créer une facture
               </div>
               <div className='bg-accent-content text-accent rounded-full p-2 mt-2'>
-                  <Layers className='h-6 w-6'/>
+                YA
+                  {/* <Layers className='h-6 w-6'/> */}
               </div>
           </div>
 

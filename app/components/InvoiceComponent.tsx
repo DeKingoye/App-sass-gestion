@@ -64,7 +64,19 @@ const getStatusBadge = (status: number) => {
 }
 
 const InvoiceComponent: React.FC<InvoiceComponentProps> = ({invoice,index}) => {
-  return (
+    
+    const calculateTotal = () => {
+        const totalHT = invoice?.lines.reduce((acc, line) => {
+            const quantity = line.quantity ?? 0;
+            const unitPrice = line.unitPrice ?? 0;
+            return acc + quantity*unitPrice
+        }, 0)
+
+        const totalVAT = totalHT * (invoice.vatRate / 100);
+        return totalHT + totalVAT
+    }
+  
+    return (
     <div className='bg-base-200/90 p-5 rounded-xl space-y-2 shadow'>
         <div className='flex justify-between items-center w-full'>
             <div>{getStatusBadge(invoice.status)}</div>
@@ -75,8 +87,20 @@ const InvoiceComponent: React.FC<InvoiceComponentProps> = ({invoice,index}) => {
                 <SquareArrowOutUpRight className='w-4'/>
             </Link>
         </div>
-        <div>
-
+        <div className='w-full'>
+            <div> 
+                <div className='stat-title'>
+                    <div className='uppercase text-sm'>
+                        FACT-{invoice.id}
+                    </div>
+                </div>
+                <div className='stat-value'>
+                    {calculateTotal().toFixed(2)} €
+                </div>
+                <div className='stat-desc'>
+                    {invoice.name}
+                </div>
+            </div>
         </div>
     </div>
   )

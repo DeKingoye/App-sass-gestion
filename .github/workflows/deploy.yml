@@ -1,0 +1,40 @@
+name: Deploy to GCP
+
+on:
+  push:
+    branches:
+      - main  # Déclencher le workflow sur les pushs vers la branche `main`
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          version: 'latest'
+          service_account_key: ${{ secrets.GCP_CREDENTIALS }}
+          project_id: silver-harmony-449206-p9
+
+      - name: Authenticate Docker with Artifact Registry
+        run: gcloud auth configure-docker europe-west9-docker.pkg.dev
+
+      - name: Build and push Docker image
+        run: |
+          docker build -t europe-west9-docker.pkg.dev/silver-harmony-449206-p9/githubsactions/my-nextjs-app:prod-latest .
+          docker push europe-west9-docker.pkg.dev/silver-harmony-449206-p9/githubsactions/my-nextjs-app:prod-latest
+
+      - name: Deploy to Google Compute Engine
+        run: |
+          gcloud compute instances delete my-nextjs-instance --zone=europe-west1-d --quiet || true
+          gcloud compute instances create-with-container my-nextjs-instance \
+            --zone=europe-west1-d \
+            --container-image=europe-west9-docker.pkg.dev/silver-harmony-449206-p9/githubsactions/my-nextjs-app:prod-latest \
+            --container-restart-policy=always \
+            --container-env="CLERK_SECRET_KEY=sk_test_wmD5PRkZjwb2aEt1fMZVcphFOcEWL7hrmyih0hnz4P,DATABASE_URL=postgresql://ordian:mI2mona.@35.195.147.151:5432/my_database,NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_aWRlYWwtZHJhZ29uLTE3LmNsZXJrLmFjY291bnRzLmRldiQ" \
+            --tags=http-server,https-server \
+            --boot-disk-size=50GB

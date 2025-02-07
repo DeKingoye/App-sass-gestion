@@ -1,6 +1,6 @@
 "use client";
 
-import { UserButton, useUser } from '@clerk/nextjs';
+import { UserButton, useUser, UserProfile } from '@clerk/nextjs';
 import  Link  from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Layers } from 'lucide-react';
@@ -28,7 +28,7 @@ const Navbar = () => {
 
     const renderLinks = (classNames:string) => 
         navLinks.map(({href, label})=>{
-            return <Link href={href} key={href} className={`btn-sm btn ${classNames} ${isActiveLink(href) ? 'btn-accent':''}`}
+            return <Link href={href} key={href} className={`btn-sm btn ${classNames} ${isActiveLink(href) ? 'btn-danger':''}`}
             >
                 {label}
             </Link>
@@ -40,10 +40,11 @@ const Navbar = () => {
         <div className='flex justify-between items-center'>
             <div className='flex items-center'>
                 <div className='bg-accent-content text-accent rounded-full p-2'>
-                    <Layers className='h-6 w-6'/>
+                    YA
+                    {/* <Layers className='h-6 w-6'/> */}
                 </div>
                 <span className='ml-3 font-bold text-2xwl italic'>
-                    <span className='text-accent'>Invoice</span>
+                Yann <span className='text-accent'>Agency</span>
                 </span>
             </div>
             <div className='flex space-x-4 items-center'>
