@@ -44,7 +44,7 @@ const Navbar = () => {
                     {/* <Layers className='h-6 w-6'/> */}
                 </div>
                 <span className='ml-3 font-bold text-2xwl italic'>
-                Yann <span className='text-accent'>Agency 2</span>
+                Yann <span className='text-accent'>Agency test4</span>
                 </span>
             </div>
             <div className='flex space-x-4 items-center'>
