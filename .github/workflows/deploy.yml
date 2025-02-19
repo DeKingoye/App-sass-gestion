@@ -53,6 +53,71 @@
 #             --boot-disk-size=50GB
 
 
+
+# name: Deploy to GCP
+
+# on:
+#   push:
+#     branches:
+#       - master
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v3
+
+#       - name: Authenticate to Google Cloud
+#         uses: google-github-actions/auth@v1
+#         with:
+#           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+#       - name: Set up Google Cloud SDK
+#         uses: google-github-actions/setup-gcloud@v1
+#         with:
+#           project_id: silver-harmony-449206-p9
+
+#       - name: Authenticate Docker with Artifact Registry
+#         run: gcloud auth configure-docker europe-west9-docker.pkg.dev
+
+#       - name: Build and push Docker image
+#         run: |
+#           docker build \
+#             --build-arg NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }} \
+#             --build-arg CLERK_SECRET_KEY=${{ secrets.CLERK_SECRET_KEY }} \
+#             --build-arg DATABASE_URL=${{ secrets.DATABASE_URL }} \
+#             -t europe-west9-docker.pkg.dev/silver-harmony-449206-p9/githubsactions/my-nextjs-app:prod-latest .
+
+#           docker push europe-west9-docker.pkg.dev/silver-harmony-449206-p9/githubsactions/my-nextjs-app:prod-latest
+
+#       - name: Deploy to Google Compute Engine
+#         run: |
+#           # Supprimer l'ancienne instance si elle existe
+#           gcloud compute instances delete my-nextjs-instance --zone=europe-west1-d --quiet || true
+          
+#           # Créer une nouvelle instance avec le conteneur
+#           gcloud compute instances create-with-container my-nextjs-instance \
+#             --zone=europe-west1-d \
+#             --container-image=europe-west9-docker.pkg.dev/silver-harmony-449206-p9/githubsactions/my-nextjs-app:prod-latest \
+#             --container-restart-policy=always \
+#             --container-env="PORT=80,NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }},CLERK_SECRET_KEY=${{ secrets.CLERK_SECRET_KEY }},DATABASE_URL=${{ secrets.DATABASE_URL }},NEXT_PUBLIC_CLERK_SIGN_IN_URL=${{ secrets.NEXT_PUBLIC_CLERK_SIGN_IN_URL }},NEXT_PUBLIC_CLERK_SIGN_UP_URL=${{ secrets.NEXT_PUBLIC_CLERK_SIGN_UP_URL }}" \
+#             --tags=http-server,https-server \
+#             --boot-disk-size=50GB
+
+#       - name: Ensure firewall allows traffic on port 80
+#         run: |
+#           gcloud compute firewall-rules create allow-http \
+#             --direction=INGRESS \
+#             --priority=1000 \
+#             --network=default \
+#             --action=ALLOW \
+#             --rules=tcp:80 \
+#             --source-ranges=0.0.0.0/0 \
+#             --target-tags=http-server || true
+
+
 name: Deploy to GCP
 
 on:
@@ -96,13 +161,12 @@ jobs:
           # Supprimer l'ancienne instance si elle existe
           gcloud compute instances delete my-nextjs-instance --zone=europe-west1-d --quiet || true
           
-          # Créer une nouvelle instance avec le conteneur exposé sur le port 80
+          # Créer une nouvelle instance avec le conteneur
           gcloud compute instances create-with-container my-nextjs-instance \
             --zone=europe-west1-d \
             --container-image=europe-west9-docker.pkg.dev/silver-harmony-449206-p9/githubsactions/my-nextjs-app:prod-latest \
             --container-restart-policy=always \
-            --container-port=80 \
-            --container-env="NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }},CLERK_SECRET_KEY=${{ secrets.CLERK_SECRET_KEY }},DATABASE_URL=${{ secrets.DATABASE_URL }},NEXT_PUBLIC_CLERK_SIGN_IN_URL=${{ secrets.NEXT_PUBLIC_CLERK_SIGN_IN_URL }},NEXT_PUBLIC_CLERK_SIGN_UP_URL=${{ secrets.NEXT_PUBLIC_CLERK_SIGN_UP_URL }}" \
+            --container-env="PORT=80,NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }},CLERK_SECRET_KEY=${{ secrets.CLERK_SECRET_KEY }},DATABASE_URL=${{ secrets.DATABASE_URL }},NEXT_PUBLIC_CLERK_SIGN_IN_URL=${{ secrets.NEXT_PUBLIC_CLERK_SIGN_IN_URL }},NEXT_PUBLIC_CLERK_SIGN_UP_URL=${{ secrets.NEXT_PUBLIC_CLERK_SIGN_UP_URL }}" \
             --tags=http-server,https-server \
             --boot-disk-size=50GB
 
